@@ -87,6 +87,39 @@ export function chooseReviewers(
   }
 }
 
+export function chooseVersionReviewers(
+  owner: string,
+  config: Config,
+  reviewers: string[],
+): {
+  reviewers: string[]
+  team_reviewers: string[]
+} {
+  const { useReviewGroups, reviewGroups, numberOfReviewers } = config
+  const useGroups: boolean =
+    useReviewGroups && Object.keys(reviewGroups).length > 0
+
+  if (useGroups) {
+    const chosenReviewers = chooseUsersFromGroups(
+      owner,
+      reviewGroups,
+      numberOfReviewers
+    )
+
+    return {
+      reviewers: chosenReviewers,
+      team_reviewers: [],
+    }
+  }
+
+  const chosenReviewers = chooseUsers(reviewers, numberOfReviewers, owner)
+
+  return {
+    reviewers: chosenReviewers.users,
+    team_reviewers: chosenReviewers.teams,
+  }
+}
+
 export function chooseAssignees(owner: string, config: Config): string[] {
   const {
     useAssigneeGroups,
