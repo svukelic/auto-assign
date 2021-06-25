@@ -90,29 +90,31 @@ export function chooseReviewers(
 export function chooseVersionReviewers(
   owner: string,
   config: Config,
-  reviewers: string[],
+  labels: string[],
 ): {
   reviewers: string[]
   team_reviewers: string[]
 } {
-  const { useReviewGroups, reviewGroups, numberOfReviewers } = config
-  const useGroups: boolean =
-    useReviewGroups && Object.keys(reviewGroups).length > 0
-
-  if (useGroups) {
-    const chosenReviewers = chooseUsersFromGroups(
-      owner,
-      reviewGroups,
-      numberOfReviewers
-    )
-
-    return {
-      reviewers: chosenReviewers,
-      team_reviewers: [],
-    }
+  const { useReviewGroups, reviewGroups, numberOfReviewers, majorReviewers, minorReviewers, patchReviewers } = config
+  
+  var versionReviewers = [];
+      
+  if (labels.find(e => e.name === "Major")){
+    versionReviewers = majorReviewers;
+  }
+  else if (labels.find(e => e.name === "Minor")){
+    versionReviewers = minorReviewers;
+  }
+  else if (labels.find(e => e.name === "Patch")){
+    versionReviewers = patchReviewers;
+  }
+  else{
+      throw new Error(
+        "Error: No label found."
+      )
   }
 
-  const chosenReviewers = chooseUsers(reviewers, numberOfReviewers, owner)
+  const chosenReviewers = chooseUsers(versionReviewers, numberOfReviewers, owner)
 
   return {
     reviewers: chosenReviewers.users,
