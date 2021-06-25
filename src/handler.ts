@@ -91,9 +91,26 @@ export async function handlePullRequest(context: Context): Promise<void> {
   
   if (addVersionPolicyReviewers) {
     try {
-      const { versionPolicyReviewers, team_reviewers } = chooseVersionReviewers(owner, config, context.payload.pull_request.labels)
+        var version = "";
+      
+        if (context.payload.pull_request.labels.find(e => e.name === "Major")){
+          version = "Major";
+        }
+        else if (context.payload.pull_request.labels.find(e => e.name === "Minor")){
+          version = "Minor";
+        }
+        else if (context.payload.pull_request.labels.find(e => e.name === "Patch")){
+          version = "Patch";
+        }
+        else{
+          throw new Error(
+            "Error: No label found."
+          )
+        }
+      
+      const { reviewers, team_reviewers } = chooseVersionReviewers(owner, config, version)
 
-      if (versionPolicyReviewers.length > 0 || team_reviewers.length > 0) {
+      if (reviewers.length > 0 || team_reviewers.length > 0) {
         const params = context.pullRequest({ reviewers, team_reviewers })
         const result = await context.octokit.pulls.requestReviewers(params)
         context.log(result)
