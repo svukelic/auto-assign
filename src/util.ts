@@ -97,7 +97,7 @@ export function chooseVersionReviewers(
 } {
   const { numberOfReviewers, majorReviewers, minorReviewers, patchReviewers } = config
   
-  var versionReviewers = [];
+  let versionReviewers = [] as any;
       
   if (version === "Major"){
     versionReviewers = majorReviewers;
