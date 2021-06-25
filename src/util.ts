@@ -90,22 +90,22 @@ export function chooseReviewers(
 export function chooseVersionReviewers(
   owner: string,
   config: Config,
-  labels: string[],
+  version: string,
 ): {
   reviewers: string[]
   team_reviewers: string[]
 } {
-  const { useReviewGroups, reviewGroups, numberOfReviewers, majorReviewers, minorReviewers, patchReviewers } = config
+  const { numberOfReviewers, majorReviewers, minorReviewers, patchReviewers } = config
   
   var versionReviewers = [];
       
-  if (labels.find(e => e.name === "Major")){
+  if (version === "Major"){
     versionReviewers = majorReviewers;
   }
-  else if (labels.find(e => e.name === "Minor")){
+  else if (version === "Minor"){
     versionReviewers = minorReviewers;
   }
-  else if (labels.find(e => e.name === "Patch")){
+  else if (version === "Patch"){
     versionReviewers = patchReviewers;
   }
   else{
