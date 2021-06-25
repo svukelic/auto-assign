@@ -1,11 +1,15 @@
 import { Context } from 'probot'
-import { includesSkipKeywords, chooseAssignees, chooseReviewers } from './util'
+import { includesSkipKeywords, chooseAssignees, chooseReviewers, chooseVersionReviewers } from './util'
 
 export interface Config {
   addReviewers: boolean
   addAssignees: boolean
+  addVersionPolicyReviewers: boolean
   reviewers: string[]
   assignees: string[]
+  majorReviewers: string[]
+  minorReviewers: string[]
+  patchReviewers: string[]
   numberOfAssignees: number
   numberOfReviewers: number
   skipKeywords: string[]
@@ -31,6 +35,7 @@ export async function handlePullRequest(context: Context): Promise<void> {
     assigneeGroups,
     addReviewers,
     addAssignees,
+    addVersionPolicyReviewers,
   } = config
 
   if (skipKeywords && includesSkipKeywords(title, skipKeywords)) {
@@ -77,6 +82,20 @@ export async function handlePullRequest(context: Context): Promise<void> {
       if (assignees.length > 0) {
         const params = context.issue({ assignees })
         const result = await context.octokit.issues.addAssignees(params)
+        context.log(result)
+      }
+    } catch (error) {
+      context.log(error)
+    }
+  }
+  
+  if (addVersionPolicyReviewers) {
+    try {
+      const { versionPolicyReviewers, team_reviewers } = chooseVersionReviewers(owner, config, context.payload.pull_request.labels)
+
+      if (versionPolicyReviewers.length > 0 || team_reviewers.length > 0) {
+        const params = context.pullRequest({ reviewers, team_reviewers })
+        const result = await context.octokit.pulls.requestReviewers(params)
         context.log(result)
       }
     } catch (error) {
